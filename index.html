@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a09">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>תזונה</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{
+    --bg:#0c0a09; --card:#1c191750; --card2:#171412; --line:#292524;
+    --line2:#3a3532; --txt:#f5f5f4; --mut:#78716c; --dim:#57534e;
+    --acc:#a3e635; --acc-dim:#a3e63530;
+  }
+  body{
+    background:var(--bg); color:var(--txt); min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Assistant",system-ui,sans-serif;
+    padding:16px; padding-bottom:60px;
+  }
+  .wrap{max-width:1000px;margin:0 auto}
+  header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:20px}
+  .eyebrow{font-size:10px;letter-spacing:.25em;color:#a3e635b0;margin-bottom:6px}
+  h1{font-size:30px;font-weight:800;letter-spacing:-.02em}
+  .prot-lbl{font-size:11px;color:var(--mut);margin-bottom:2px;text-align:left}
+  .prot{display:flex;align-items:baseline;gap:6px;justify-content:flex-end}
+  .prot b{font-size:40px;font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums;line-height:1}
+  .prot span{font-size:13px;color:var(--mut)}
+
+  .bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+  .bar>i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width .4s}
+  .barrow{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--mut);align-items:center}
+  .barrow label{display:flex;align-items:center;gap:6px}
+
+  input,textarea{font-family:inherit;color:var(--txt);background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:14px;outline:none;width:100%}
+  input:focus,textarea:focus{border-color:#a3e63580}
+  input::placeholder,textarea::placeholder{color:#44403c}
+  input.num{width:56px;text-align:center;font-variant-numeric:tabular-nums;padding:8px 4px}
+  .goal{width:56px;padding:3px 6px;font-size:11px;text-align:center}
+
+  .sec-lbl{font-size:11px;color:var(--mut);font-weight:600;display:block;margin:0 0 6px}
+  .topnote{margin:20px 0}
+
+  .meal{border:1px solid var(--line);background:var(--card);border-radius:14px;margin-bottom:14px;transition:border-color .2s,background .2s}
+  .meal.done{border-color:#a3e63566;background:#a3e6350a}
+  .mhead{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 10px}
+  .mleft{display:flex;align-items:center;gap:12px}
+  .chk{width:26px;height:26px;border-radius:7px;border:2px solid var(--line2);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+  .chk:hover{border-color:var(--mut)}
+  .chk.on{background:var(--acc);border-color:var(--acc)}
+  .chk svg{display:none;width:15px;height:15px}
+  .chk.on svg{display:block}
+  .mtitle{font-weight:700;font-size:16px}
+  .meal.done .mtitle{color:#bef264}
+  .mtime{font-size:11px;color:var(--dim);margin-top:1px}
+  .ate{font-size:11px;color:var(--acc);font-weight:600;display:none}
+  .meal.done .ate{display:block}
+
+  .mnote{padding:0 18px 12px}
+  .mnote input{font-size:12px;padding:7px 10px;background:#0f0d0c99}
+
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 18px 18px}
+  @media(max-width:640px){.cols{grid-template-columns:1fr}}
+  .col{position:relative}
+  .chead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .chead label{font-size:11px;color:var(--mut);font-weight:600}
+  .pen{background:none;border:0;color:#44403c;cursor:pointer;padding:2px;display:flex}
+  .pen:hover,.pen.on{color:var(--acc)}
+  .pen svg{width:14px;height:14px}
+
+  .sel{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 12px;border-radius:9px;border:1px solid var(--line);background:var(--card2);color:var(--dim);font-size:14px;text-align:right;cursor:pointer;font-family:inherit;transition:.15s}
+  .sel:hover{border-color:var(--line2)}
+  .sel.has{background:#292524;border-color:var(--line2);color:var(--txt)}
+  .sel .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sel svg{width:15px;height:15px;flex-shrink:0;color:var(--mut);transition:transform .2s}
+  .sel.open svg{transform:rotate(180deg)}
+
+  .menu{position:absolute;z-index:30;top:100%;margin-top:4px;width:100%;background:#292524;border:1px solid var(--line2);border-radius:9px;overflow:hidden;box-shadow:0 12px 32px #000a}
+  .menu button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 12px;background:none;border:0;color:var(--txt);font-size:14px;text-align:right;cursor:pointer;font-family:inherit}
+  .menu button:hover{background:#3a3532}
+  .menu button.act{color:#bef264;background:#3a353280}
+  .menu button i{font-style:normal;font-size:10px;color:var(--mut);font-variant-numeric:tabular-nums;flex-shrink:0}
+  .menu .clr{border-top:1px solid var(--line2);color:var(--mut);font-size:12px;justify-content:flex-start}
+  .menu .empty{padding:12px;font-size:12px;color:var(--mut)}
+
+  .edit{background:var(--card2);border:1px solid #a3e63550;border-radius:9px;padding:10px}
+  .ehead{display:flex;gap:6px;font-size:10px;color:var(--dim);padding:0 2px 4px}
+  .ehead .f{flex:1}.ehead .n{width:56px;text-align:center}.ehead .x{width:22px}
+  .erow{display:flex;gap:6px;margin-bottom:6px}
+  .erow input{font-size:13px;padding:7px 9px;background:#0c0a09}
+  .erow .del{width:22px;background:none;border:0;color:#44403c;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .erow .del:hover{color:#f87171}
+  .erow .del svg{width:15px;height:15px}
+  .add{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:7px;border-radius:7px;border:1px dashed var(--line2);background:none;color:var(--mut);font-size:12px;cursor:pointer;font-family:inherit;margin-bottom:6px}
+  .add:hover{border-color:#a3e63580;color:var(--acc)}
+  .add svg{width:14px;height:14px}
+  .done-btn{width:100%;padding:7px;border-radius:7px;border:0;background:var(--acc);color:#0c0a09;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+  .done-btn:hover{background:#bef264}
+
+  .status{position:fixed;bottom:0;left:0;right:0;text-align:center;font-size:11px;color:var(--dim);padding:10px;background:linear-gradient(transparent,var(--bg) 40%)}
+  .status.err{color:#f87171}
+  .load{min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--acc)}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .sp{width:24px;height:24px;border:2px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:sp .7s linear infinite}
+</style>
+</head>
+<body>
+<div id="root"><div class="load"><div class="sp"></div></div></div>
+
+<script>
+const SB_URL = "https://qwcvsdoasjovsvkqhjxm.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3Y3ZzZG9hc2pvdnN2a3FoanhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NDEyNjUsImV4cCI6MjA5OTUxNzI2NX0.3y72Z5SXDGeJmSqYQs04RWcRtuIwhN4lTwe1pjWrW9c";
+const ROW = "nutrition";
+const HDRS = {
+  "apikey": SB_KEY,
+  "Authorization": "Bearer " + SB_KEY,
+  "Content-Type": "application/json"
+};
+
+const MEALS = [
+  {id:"breakfast", label:"ארוחת בוקר", time:"07:00 – 10:00", cols:[
+    {id:"carb",label:"פחמימה"},{id:"protein",label:"חלבון"},{id:"fat",label:"שומן"}]},
+  {id:"lunch", label:"ארוחת צהריים", time:"12:00 – 15:00", cols:[
+    {id:"carb",label:"פחמימה"},{id:"protein",label:"חלבון"},{id:"fat",label:"שומן"}]},
+  {id:"dinner", label:"ארוחת ערב", time:"18:00 – 21:00", cols:[
+    {id:"carb",label:"פחמימה"},{id:"protein",label:"חלבון"},{id:"fat",label:"שומן"}]},
+  {id:"snack", label:"נשנוש", time:"בכל שעה", cols:[
+    {id:"a",label:"בחירה 1"},{id:"b",label:"בחירה 2"},{id:"c",label:"בחירה 3"}]},
+];
+
+const SEED = {
+  breakfast:{
+    carb:[{id:"b1",name:"2 פרוסות לחם מלא",p:6},{id:"b2",name:"טורטייה אחת",p:5},{id:"b3",name:"40 גרם שיבולת שועל",p:5}],
+    protein:[{id:"b4",name:"2 ביצים",p:12},{id:"b5",name:"150 גרם קוטג' 5%",p:17},{id:"b6",name:"גביע יוגורט יווני",p:18}],
+    fat:[{id:"b7",name:"חצי אבוקדו",p:1},{id:"b8",name:"כף טחינה גולמית",p:3},{id:"b9",name:"10 שקדים",p:2}]},
+  lunch:{
+    carb:[{id:"l1",name:"3 כפות אורז מבושל",p:3},{id:"l2",name:"תפוח אדמה בינוני",p:3},{id:"l3",name:"כוס פסטה מלאה",p:7}],
+    protein:[{id:"l4",name:"150 גרם חזה עוף",p:35},{id:"l5",name:"150 גרם דג לבן",p:30},{id:"l6",name:"כוס עדשים מבושלות",p:18}],
+    fat:[{id:"l7",name:"כף שמן זית",p:0},{id:"l8",name:"רבע אבוקדו",p:1},{id:"l9",name:"כף טחינה",p:3}]},
+  dinner:{
+    carb:[{id:"d1",name:"2 פרוסות לחם קל",p:4},{id:"d2",name:"חצי כוס קינואה",p:4},{id:"d3",name:"בטטה קטנה",p:2}],
+    protein:[{id:"d4",name:"אומלט מ-3 ביצים",p:18},{id:"d5",name:"200 גרם קוטג' 3%",p:22},{id:"d6",name:"120 גרם טונה במים",p:26}],
+    fat:[{id:"d7",name:"כף טחינה גולמית",p:3},{id:"d8",name:"חצי אבוקדו",p:1},{id:"d9",name:"8 אגוזי מלך",p:3}]},
+  snack:{
+    a:[{id:"s1",name:"תפוח בינוני",p:0},{id:"s2",name:"בננה",p:1},{id:"s3",name:"פריכית אורז",p:1}],
+    b:[{id:"s4",name:"שייק חלבון",p:25},{id:"s5",name:"גביע יוגורט 3%",p:8},{id:"s6",name:"ביצה קשה",p:6}],
+    c:[{id:"s7",name:"15 שקדים",p:3},{id:"s8",name:"כף חמאת בוטנים",p:4},{id:"s9",name:"קרם אגוזים",p:2}]},
+};
+
+const DEFAULT = {options:SEED, picks:{}, eaten:{}, goal:140, topNote:"", mealNotes:{}};
+const uid = () => Math.random().toString(36).slice(2,9);
+const ICON = {
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="#0c0a09" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
+  pen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+};
+
+let S = null;          // app state
+let openMenu = null;   // "meal.col"
+let editKey  = null;   // "meal.col"
+let saveTimer = null;
+let loadErr = null;
+const esc = s => String(s||"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function setStatus(txt, err){
+  const el = document.getElementById("status");
+  if(el){ el.textContent = txt; el.className = "status" + (err?" err":""); }
+}
+
+async function load(){
+  try{
+    const res = await fetch(
+      SB_URL + "/rest/v1/app_state?select=data&key=eq." + ROW,
+      { headers: HDRS }
+    );
+    if(!res.ok) throw new Error("HTTP " + res.status + " " + (await res.text()));
+    const rows = await res.json();
+    const saved = (rows[0] && rows[0].data) || {};
+    S = Object.assign({}, DEFAULT, saved);
+    if(!S.options || !Object.keys(S.options).length) S.options = SEED;
+    loadErr = null;
+  }catch(e){
+    loadErr = e.message || String(e);
+    console.error("LOAD FAILED:", loadErr);
+    S = JSON.parse(JSON.stringify(DEFAULT));
+  }
+  render();
+  if(loadErr) setStatus("שגיאת טעינה: " + loadErr, true);
+}
+
+async function save(){
+  setStatus("שומר…");
+  try{
+    const res = await fetch(SB_URL + "/rest/v1/app_state?on_conflict=key", {
+      method: "POST",
+      headers: Object.assign({}, HDRS, { "Prefer": "resolution=merge-duplicates" }),
+      body: JSON.stringify({
+        key: ROW,
+        data: S,
+        updated_at: new Date().toISOString()
+      })
+    });
+    if(!res.ok) throw new Error("HTTP " + res.status + " " + (await res.text()));
+    setStatus("נשמר · שניכם רואים את אותו תפריט");
+  }catch(e){
+    const msg = e.message || String(e);
+    console.error("SAVE FAILED:", msg);
+    setStatus("שגיאת שמירה: " + msg, true);
+  }
+}
+const saveSoon = () => { clearTimeout(saveTimer); saveTimer = setTimeout(save, 600); };
+
+function total(){
+  let t = 0;
+  for(const m of MEALS){
+    if(!S.eaten[m.id]) continue;
+    for(const c of m.cols){
+      const pid = S.picks[m.id+"."+c.id];
+      const o = (S.options[m.id]?.[c.id]||[]).find(o=>o.id===pid);
+      if(o) t += Number(o.p)||0;
+    }
+  }
+  return t;
+}
+
+function render(){
+  const t = total();
+  const pct = Math.min(100, Math.round(t/(S.goal||1)*100));
+
+  let html = '<div class="wrap"><header><div>'
+    + '<div class="eyebrow">תוכנית</div><h1>תזונה</h1></div><div>'
+    + '<div class="prot-lbl">חלבון היום</div>'
+    + '<div class="prot"><b>'+t+'</b><span>/ '+S.goal+' גר׳</span></div></div></header>'
+    + '<div class="bar"><i style="width:'+pct+'%"></i></div>'
+    + '<div class="barrow"><span>'+pct+'% מהיעד</span>'
+    + '<label>יעד: <input class="goal" type="number" data-f="goal" value="'+S.goal+'"> גר׳</label></div>'
+    + '<div class="topnote"><label class="sec-lbl">הערות כלליות</label>'
+    + '<textarea rows="2" data-f="topNote" placeholder="הערות לתפריט…">'+esc(S.topNote)+'</textarea></div>';
+
+  for(const m of MEALS){
+    const done = !!S.eaten[m.id];
+    html += '<section class="meal'+(done?" done":"")+'">'
+      + '<div class="mhead"><div class="mleft">'
+      + '<button class="chk'+(done?" on":"")+'" data-eat="'+m.id+'">'+ICON.check+'</button>'
+      + '<div><div class="mtitle">'+m.label+'</div><div class="mtime">'+m.time+'</div></div></div>'
+      + '<span class="ate">אכלתי ✓</span></div>'
+      + '<div class="mnote"><input data-note="'+m.id+'" value="'+esc(S.mealNotes[m.id])+'" placeholder="הערה לארוחה…"></div>'
+      + '<div class="cols">';
+
+    for(const c of m.cols){
+      const k = m.id+"."+c.id;
+      const list = S.options[m.id][c.id] || [];
+      const sel = list.find(o=>o.id===S.picks[k]);
+      const isEd = editKey===k, isOp = openMenu===k;
+
+      html += '<div class="col"><div class="chead"><label>'+c.label+'</label>'
+        + '<button class="pen'+(isEd?" on":"")+'" data-ed="'+k+'">'+(isEd?ICON.x:ICON.pen)+'</button></div>';
+
+      if(isEd){
+        html += '<div class="edit"><div class="ehead"><span class="f">אפשרות (כולל כמות)</span><span class="n">חלבון</span><span class="x"></span></div>';
+        list.forEach((o,i)=>{
+          html += '<div class="erow">'
+            + '<input data-opt="'+k+'|'+i+'|name" value="'+esc(o.name)+'" placeholder="למשל: 2 כפות אורז">'
+            + '<input class="num" type="number" data-opt="'+k+'|'+i+'|p" value="'+(o.p||0)+'">'
+            + '<button class="del" data-del="'+k+'|'+i+'">'+ICON.trash+'</button></div>';
+        });
+        html += '<button class="add" data-add="'+k+'">'+ICON.plus+' הוסף</button>'
+          + '<button class="done-btn" data-fin="1">סיום</button></div>';
+      } else {
+        html += '<button class="sel'+(sel?" has":"")+(isOp?" open":"")+'" data-open="'+k+'">'
+          + '<span class="t">'+(sel?esc(sel.name):"בחר…")+'</span>'+ICON.chev+'</button>';
+        if(isOp){
+          html += '<div class="menu">';
+          if(!list.length) html += '<div class="empty">אין אפשרויות. לחץ על העיפרון כדי להוסיף.</div>';
+          list.forEach(o=>{
+            html += '<button class="'+(S.picks[k]===o.id?"act":"")+'" data-pick="'+k+'|'+o.id+'">'
+              + '<span>'+(esc(o.name)||"—")+'</span><i>'+(o.p||0)+' גר׳</i></button>';
+          });
+          if(sel) html += '<button class="clr" data-pick="'+k+'|">נקה בחירה</button>';
+          html += '</div>';
+        }
+      }
+      html += '</div>';
+    }
+    html += '</div></section>';
+  }
+
+  html += '</div><div class="status" id="status">נשמר · שניכם רואים את אותו תפריט</div>';
+  document.getElementById("root").innerHTML = html;
+  bind();
+}
+
+function bind(){
+  const $ = s => document.querySelectorAll(s);
+
+  $("[data-eat]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.eat; S.eaten[id]=!S.eaten[id]; save(); render();
+  });
+
+  $("[data-open]").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    openMenu = openMenu===b.dataset.open ? null : b.dataset.open;
+    render();
+  });
+
+  $("[data-pick]").forEach(b=>b.onclick=()=>{
+    const [k,id]=b.dataset.pick.split("|");
+    if(id) S.picks[k]=id; else delete S.picks[k];
+    openMenu=null; save(); render();
+  });
+
+  $("[data-ed]").forEach(b=>b.onclick=()=>{
+    editKey = editKey===b.dataset.ed ? null : b.dataset.ed;
+    openMenu=null; render();
+  });
+
+  $("[data-fin]").forEach(b=>b.onclick=()=>{ editKey=null; save(); render(); });
+
+  $("[data-add]").forEach(b=>b.onclick=()=>{
+    const [m,c]=b.dataset.add.split(".");
+    S.options[m][c].push({id:uid(),name:"",p:0}); save(); render();
+  });
+
+  $("[data-del]").forEach(b=>b.onclick=()=>{
+    const [k,i]=b.dataset.del.split("|");
+    const [m,c]=k.split(".");
+    const rm = S.options[m][c][+i];
+    if(S.picks[k]===rm.id) delete S.picks[k];
+    S.options[m][c].splice(+i,1); save(); render();
+  });
+
+  // live-edit option fields — no re-render, so focus is never lost
+  $("[data-opt]").forEach(inp=>inp.oninput=()=>{
+    const [k,i,f]=inp.dataset.opt.split("|");
+    const [m,c]=k.split(".");
+    S.options[m][c][+i][f] = f==="p" ? (Number(inp.value)||0) : inp.value;
+    saveSoon();
+  });
+
+  $("[data-note]").forEach(inp=>inp.oninput=()=>{
+    S.mealNotes[inp.dataset.note]=inp.value; saveSoon();
+  });
+
+  $("[data-f]").forEach(inp=>inp.oninput=()=>{
+    const f=inp.dataset.f;
+    S[f] = f==="goal" ? (Number(inp.value)||0) : inp.value;
+    saveSoon();
+    if(f==="goal"){
+      const t=total(), pct=Math.min(100,Math.round(t/(S.goal||1)*100));
+      document.querySelector(".bar>i").style.width=pct+"%";
+      document.querySelector(".barrow span").textContent=pct+"% מהיעד";
+      document.querySelector(".prot span").textContent="/ "+S.goal+" גר׳";
+    }
+  });
+
+  document.onclick = e => {
+    if(openMenu && !e.target.closest(".col")){ openMenu=null; render(); }
+  };
+}
+
+load();
+</script>
+</body>
+</html>
